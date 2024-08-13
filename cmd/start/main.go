@@ -5,8 +5,10 @@ import (
 
 	"github.com/euklid-dev/deep_chained/docs"
 	internal "github.com/euklid-dev/deep_chained/internal/api/alpha"
+	login "github.com/euklid-dev/deep_chained/internal/api/alpha/auth_handler"
 	"github.com/euklid-dev/deep_chained/internal/config"
 	"github.com/euklid-dev/deep_chained/internal/langchain"
+	"github.com/euklid-dev/deep_chained/internal/tmpl_renderer"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
@@ -58,6 +60,8 @@ func main() {
 		c.Status(204)
 	})
 
+	router.Use(internal.DisableCacheInDevMode)
+
 	// swagger documentation
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -65,6 +69,13 @@ func main() {
 
 	// Health Check
 	alpha.GET("/health-check", internal.HealthCheck)
+
+	// UI delivery
+	htmlRenderer := router.HTMLRender
+	router.HTMLRender = &tmpl_renderer.HTMLTemplRenderer{FallbackHtmlRenderer: htmlRenderer}
+
+	// login page
+	alpha.GET("/login", login.LoginViewHandler)
 
 	router.Run(":" + config.GlobalAppConfig.APP_SERVICE_PORT)
 }

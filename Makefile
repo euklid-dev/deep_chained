@@ -2,53 +2,64 @@ include .env
 export MASTER_DB_URL
 export EC2_DB_URL
 
-CORE_DB_MIGRATION= ./db/migrations
-# TENANT_DB_MIGRATION= ./db/tenant_migrations
+# Application settings
+APP_NAME=deep_chained_service
+BACKEND_SERVICE_ENTRYPOINT=./cmd/start/main.go
+CORE_DB_MIGRATION=./db/migrations
 
-
-# Go command
+# Go command and tools
 GOCMD=go
-# Build, clean, test, and get commands
 GOBUILD=$(GOCMD) build
 GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 GOMOD=$(GOCMD) mod
-# Binary names, adjusted to place the output in ./bin/
-BINARY_NAME=deep_chained_service
-BINARY_PATH=./bin/$(BINARY_NAME)
-BINARY_UNIX=$(BINARY_PATH)_unix
-BACKEND_SERVICE_ENTRYPOINT=./cmd/start/main.go
+GOVET=$(GOCMD) vet
 
-# Default to run tests and then build
+# Binary paths
+BINARY_PATH=./bin/$(APP_NAME)
+BINARY_UNIX=$(BINARY_PATH)_unix
+
+# Default target
 all: test build
 
-# Compile the binary to bin/ directory
+# Build targets
 build:
 	$(GOBUILD) -o $(BINARY_PATH) -v $(BACKEND_SERVICE_ENTRYPOINT)
 
-# Run tests across the project
-test:
-	$(GOTEST) -v ./...
+build-linux:
+	CGO_ENABLED=0 GOOS=linux $(GOBUILD) -a -installsuffix cgo -o $(BINARY_UNIX) $(BACKEND_SERVICE_ENTRYPOINT)
 
-# Clean up the project
-clean:
-	$(GOCLEAN)
-	rm -f $(BINARY_PATH)
-	rm -f $(BINARY_UNIX)
+build-htmx: tailwind-build templ-generate
+	$(GOBUILD) -ldflags "-X main.Environment=production" -o $(BINARY_PATH) $(BACKEND_SERVICE_ENTRYPOINT)
 
-# Build and run the project
+# Run and development targets
 run: build
 	$(BINARY_PATH)
 
-# Handle dependencies using Go modules
+dev:
+	$(GOBUILD) -o ./tmp/$(APP_NAME) $(BACKEND_SERVICE_ENTRYPOINT) && air
+
+# Test and quality targets
+test:
+	$(GOTEST) -race -v -timeout 30s ./...
+
+vet:
+	$(GOVET) ./...
+
+staticcheck:
+	staticcheck ./...
+
+# Dependency management
 deps:
 	$(GOMOD) tidy
 	$(GOMOD) verify
 
-# Cross compilation for Linux
-build-linux:
-	CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o $(BINARY_PATH) $(BACKEND_SERVICE_ENTRYPOINT)
+# Clean up
+clean:
+	$(GOCLEAN)
+	rm -f $(BINARY_PATH) $(BINARY_UNIX)
 
+# Database migration targets
 up:
 	@goose -dir=$(CORE_DB_MIGRATION) postgres $$MASTER_DB_URL up
 
@@ -61,12 +72,29 @@ ec2-db-up:
 ec2-db-down:
 	@goose -dir=$(CORE_DB_MIGRATION) postgres $$EC2_DB_URL down
 
-swag:
-	@swag fmt
-	@swag init -g cmd/start/main.go  
-
 create-migration:
 	@read -p "Enter migration name: " name; \
 	goose -dir $(CORE_DB_MIGRATION) create $$name sql
 
-.PHONY: all build test clean run deps build-linux up down ec2-db-up ec2-db-down swag create-migration
+# Documentation and API
+swag:
+	@swag fmt
+	@swag init -g $(BACKEND_SERVICE_ENTRYPOINT)
+
+# Frontend tooling
+tailwind-watch:
+	./tailwindcss -i ./static/css/input.css -o ./static/css/style.css --watch
+
+tailwind-build:
+	./tailwindcss -i ./static/css/input.css -o ./static/css/style.min.css --minify
+
+templ-generate:
+	templ generate
+
+templ-watch:
+	templ generate --watch
+
+# Declare phony targets
+.PHONY: all build build-linux build-htmx run dev test vet staticcheck deps clean \
+        up down ec2-db-up ec2-db-down create-migration swag \
+        tailwind-watch tailwind-build templ-generate templ-watch
