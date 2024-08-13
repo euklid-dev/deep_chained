@@ -13,7 +13,7 @@ var (
 
 func ConnectToDatabase() {
 	var err error
-	SQLx, err = sqlx.Connect("postgres", config.GlobalAppConfig.DB_URL)
+	SQLx, err = sqlx.Connect("postgres", config.GlobalAppConfig.MASTER_DB_URL)
 
 	if err != nil {
 		log.Fatal(err)

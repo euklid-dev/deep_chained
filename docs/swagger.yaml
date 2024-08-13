@@ -1,0 +1,34 @@
+definitions:
+  alpha.ApiResponse:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+info:
+  contact:
+    email: tech@euklid.dev
+    name: Deepchained
+    url: https;//euklid.dev
+  description: API for Deep Chained
+  title: Deep Chained API
+  version: alpha
+paths:
+  /health-check:
+    get:
+      consumes:
+      - application/json
+      description: Check if the server is up and running
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/alpha.ApiResponse'
+      summary: Health Check
+      tags:
+      - Health Check
+swagger: "2.0"

@@ -1,0 +1,52 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API for Deep Chained",
+        "title": "Deep Chained API",
+        "contact": {
+            "name": "Deepchained",
+            "url": "https;//euklid.dev",
+            "email": "tech@euklid.dev"
+        },
+        "version": "alpha"
+    },
+    "paths": {
+        "/health-check": {
+            "get": {
+                "description": "Check if the server is up and running",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Health Check"
+                ],
+                "summary": "Health Check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/alpha.ApiResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "alpha.ApiResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
