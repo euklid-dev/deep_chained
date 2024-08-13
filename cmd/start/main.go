@@ -40,7 +40,7 @@ func main() {
 
 	// Set up CORS configuration
 	corsConfig := cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "https://localhost:3000", "https://localhost:3216", "https://automate-ai-c674b.web.app"},
+		AllowOrigins:     []string{"http://localhost:3000", "https://localhost:3000", "https://localhost:3216"},
 		AllowMethods:     []string{"GET", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"*"},
 		ExposeHeaders:    []string{"Content-Length"},
