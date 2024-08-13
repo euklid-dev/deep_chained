@@ -2,8 +2,8 @@ include .env
 export MASTER_DB_URL
 export EC2_DB_URL
 
-CORE_DB_MIGRATION= ./db/core_migrations
-TENANT_DB_MIGRATION= ./db/tenant_migrations
+CORE_DB_MIGRATION= ./db/migrations
+# TENANT_DB_MIGRATION= ./db/tenant_migrations
 
 
 # Go command
@@ -14,7 +14,7 @@ GOCLEAN=$(GOCMD) clean
 GOTEST=$(GOCMD) test
 GOMOD=$(GOCMD) mod
 # Binary names, adjusted to place the output in ./bin/
-BINARY_NAME=automate_ai_service
+BINARY_NAME=deep_chained_service
 BINARY_PATH=./bin/$(BINARY_NAME)
 BINARY_UNIX=$(BINARY_PATH)_unix
 BACKEND_SERVICE_ENTRYPOINT=./cmd/start/main.go

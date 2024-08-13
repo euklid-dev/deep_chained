@@ -3,6 +3,8 @@ package main
 import (
 	"os"
 
+	"github.com/euklid-dev/deep_chained/docs"
+	internal "github.com/euklid-dev/deep_chained/internal/api/alpha"
 	"github.com/euklid-dev/deep_chained/internal/config"
 	"github.com/euklid-dev/deep_chained/internal/langchain"
 	"github.com/gin-contrib/cors"
@@ -13,7 +15,6 @@ import (
 	_ "github.com/euklid-dev/deep_chained/docs"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"github.com/swaggo/swag/example/basic/docs"
 )
 
 //	@title			Deep Chained API
@@ -29,6 +30,8 @@ func main() {
 
 	// Initialize langchain
 	langchain.Initialize()
+
+	// db.ConnectToDatabase()
 
 	docs.SwaggerInfo.Host = os.Getenv("SWAGGER_HOST")
 	docs.SwaggerInfo.BasePath = os.Getenv("SWAGGER_BASE_PATH")
@@ -57,6 +60,11 @@ func main() {
 
 	// swagger documentation
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	alpha := router.Group("/deep-c")
+
+	// Health Check
+	alpha.GET("/health-check", internal.HealthCheck)
 
 	router.Run(":" + config.GlobalAppConfig.APP_SERVICE_PORT)
 }
