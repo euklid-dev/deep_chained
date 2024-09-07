@@ -3,7 +3,7 @@ module github.com/euklid-dev/deep_chained
 go 1.22.2
 
 require (
-	github.com/a-h/templ v0.2.747
+	github.com/a-h/templ v0.2.771
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/jmoiron/sqlx v1.4.0
